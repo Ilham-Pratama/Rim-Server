@@ -17,7 +17,9 @@ class AccountAPI extends DataSource {
   async findUser({ ...props }) {
     const user = await this.store.findOne({
       where: props,
-      attributes: { exclude: ['posts', 'followers'] },
+      attributes: {
+        exclude: ['posts', 'followers', 'following', 'unseenposts'],
+      },
     });
     return user;
   }
@@ -35,6 +37,20 @@ class AccountAPI extends DataSource {
     });
     return user;
   }
+  async getFollowingFromUser({ ...props }) {
+    const user = await this.store.findOne({
+      where: props,
+      attributes: ['following'],
+    });
+    return user;
+  }
+  async getUnseenPostsFromUser({ ...props }) {
+    const user = await this.store.findOne({
+      where: props,
+      attributes: ['unseenposts'],
+    });
+    return user;
+  }
   async createUser({ username, password, email }) {
     const saltRounds = 10;
     await bcrypt.hash(password, saltRounds).then(async (hash) => {
@@ -43,8 +59,10 @@ class AccountAPI extends DataSource {
         password: hash,
         email,
         followers: [],
+        following: [],
         imgurl: 'none',
         posts: [],
+        unseenposts: [],
       });
     });
     const user = await this.findUser({ email });

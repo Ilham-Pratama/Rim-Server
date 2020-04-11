@@ -4,19 +4,16 @@ require('dotenv').config();
 
 const secretKey = process.env.SECRETKEY;
 
-const getToken = user => {
+const getToken = (user) => {
   if (user && user.dataValues)
-    return jwt.sign(
-      { ...user.dataValues, posts: [], followers: [] },
-      secretKey
-    );
+    return jwt.sign({ ...user.dataValues }, secretKey);
   return null;
 };
 
 module.exports = {
   Query: {
     me: async (_, __, { dataSources: { AccountAPI } }) =>
-      await AccountAPI.getCurrentUser()
+      await AccountAPI.getCurrentUser(),
   },
   Mutation: {
     signUp: async (_, { email, ...args }, { dataSources: { AccountAPI } }) => {
@@ -26,7 +23,7 @@ module.exports = {
       if (isEmailUsed) {
         return {
           status: 403,
-          res: isEmailUsed.email
+          res: isEmailUsed.email,
         };
       }
       // Creating user
@@ -36,7 +33,7 @@ module.exports = {
       // Returning token
       return {
         status: 200,
-        res
+        res,
       };
     },
     signIn: async (_, { email, password }, { dataSources: { AccountAPI } }) => {
@@ -44,6 +41,6 @@ module.exports = {
       const user = await AccountAPI.signIn({ email, password });
       // Returning token
       return getToken(user);
-    }
-  }
+    },
+  },
 };
